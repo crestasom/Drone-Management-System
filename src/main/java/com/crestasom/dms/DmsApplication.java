@@ -1,4 +1,4 @@
-package com.crestasom.pps;
+package com.crestasom.dms;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

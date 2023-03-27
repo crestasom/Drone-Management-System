@@ -1,10 +1,10 @@
-package com.crestasom.pps.filter;
+package com.crestasom.dms.filter;
 
 import java.io.IOException;
 import org.jboss.logging.MDC;
 import org.springframework.stereotype.Component;
 
-import com.crestasom.pps.util.PPSUtils;
+import com.crestasom.dms.util.DMSUtils;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -21,7 +21,7 @@ public class RequestFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 
-		MDC.put("reqId", PPSUtils.getUUID());
+		MDC.put("reqId", DMSUtils.getUUID());
 		chain.doFilter(request, response);
 	}
 }

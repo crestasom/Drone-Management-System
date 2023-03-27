@@ -1,13 +1,12 @@
-package com.crestasom.pps.util;
+package com.crestasom.dms.util;
 
 import java.util.UUID;
 
 import lombok.Generated;
 
-public class PPSUtils {
+public class DMSUtils {
 	@Generated
-	private PPSUtils() {
-
+	private DMSUtils() {
 	}
 
 	public static String getUUID() {

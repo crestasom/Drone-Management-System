@@ -1,4 +1,4 @@
-package com.crestasom.pps.exception;
+package com.crestasom.dms.exception;
 
 import java.util.stream.Collectors;
 
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.crestasom.pps.model.ResponseBean;
+import com.crestasom.dms.model.ResponseBean;
 
 import jakarta.validation.ConstraintViolationException;
 

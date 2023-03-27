@@ -1,4 +1,4 @@
-package com.crestasom.pps.model;
+package com.crestasom.dms.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

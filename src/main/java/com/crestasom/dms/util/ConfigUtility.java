@@ -1,4 +1,4 @@
-package com.crestasom.pps.util;
+package com.crestasom.dms.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
