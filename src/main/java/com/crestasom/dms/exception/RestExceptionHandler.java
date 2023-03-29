@@ -30,5 +30,16 @@ public class RestExceptionHandler {
 				.map(e -> e.getMessageTemplate()).collect(Collectors.joining(",")));
 		return bean;
 	}
+	
+	@ExceptionHandler(NoEnumException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ResponseBody
+	ResponseBean handleNoEnumException(NoEnumException ex) {
+		logger.error("Exception occured!![{}]", ex.getMessage(), ex);
+		ResponseBean bean = new ResponseBean();
+		bean.setRespCode(HttpStatus.BAD_REQUEST.value());
+		bean.setRespDesc(ex.getMessage());
+		return bean;
+	}
 
 }

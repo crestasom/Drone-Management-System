@@ -14,7 +14,26 @@ public class ConfigUtility {
 		return env.getProperty(pPropertyKey);
 	}
 
+	public String getProperty(String pPropertyKey, String defaultValue) {
+		String val = env.getProperty(pPropertyKey);
+		if (val == null) {
+			val = defaultValue;
+		}
+		return val;
+	}
+
 	public Integer getPropertyAsInt(String pPropertyKey) {
 		return Integer.parseInt(env.getProperty(pPropertyKey));
+	}
+
+	public Integer getPropertyAsInt(String pPropertyKey, Integer defaultValue) {
+		String val = env.getProperty(pPropertyKey);
+		Integer retVal;
+		if (val == null) {
+			retVal = defaultValue;
+		} else {
+			retVal = Integer.parseInt(val);
+		}
+		return retVal;
 	}
 }
