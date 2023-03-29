@@ -1,5 +1,6 @@
 package com.crestasom.dms.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -36,11 +37,11 @@ public class Drone {
 	private Model model;
 	@Max(value = 500, message = "Weight limit for drone is 500 Gram")
 	private Double maxWeight;
-	@Max(value=100,message = "Battery capacity should be less than 100")
-	@Min(value=0, message = "Battery capacity should be greater than 0")
+	@Max(value = 100, message = "Battery capacity should be less than 100")
+	@Min(value = 0, message = "Battery capacity should be greater than 0")
 	private Integer batteryCapacity;
 	private State state;
-	@OneToMany
+	@OneToMany(cascade = CascadeType.ALL)
 	private List<Medication> medicationList;
 
 }

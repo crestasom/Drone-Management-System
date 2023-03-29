@@ -11,13 +11,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.crestasom.dms.model.ResponseBean;
+import com.crestasom.dms.util.ConfigUtility;
 
 import jakarta.validation.ConstraintViolationException;
+import lombok.AllArgsConstructor;
 
 @ControllerAdvice
+@AllArgsConstructor
 public class RestExceptionHandler {
 
 	private static Logger logger = LoggerFactory.getLogger(RestExceptionHandler.class);
+	private ConfigUtility configUtility;
 
 	@ExceptionHandler(ConstraintViolationException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -30,7 +34,7 @@ public class RestExceptionHandler {
 				.map(e -> e.getMessageTemplate()).collect(Collectors.joining(",")));
 		return bean;
 	}
-	
+
 	@ExceptionHandler(NoEnumException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ResponseBody
@@ -42,4 +46,15 @@ public class RestExceptionHandler {
 		return bean;
 	}
 
+	@ExceptionHandler(ImageStoreException.class)
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	@ResponseBody
+	ResponseBean handleImageStoreException(ImageStoreException ex) {
+		logger.error("Exception occured!![{}]", ex.getMessage(), ex);
+		ResponseBean bean = new ResponseBean();
+		bean.setRespCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+		bean.setRespDesc(configUtility.getProperty("image.store.exception",
+				"Problem in storing image. Please contact Administrator"));
+		return bean;
+	}
 }

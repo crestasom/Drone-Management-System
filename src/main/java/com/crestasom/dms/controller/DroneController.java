@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.crestasom.dms.dto.DroneDTO;
 import com.crestasom.dms.model.ResponseBean;
+import com.crestasom.dms.model.request.LoadMedicationItemsRequest;
 import com.crestasom.dms.service.DroneService;
 
 import lombok.AllArgsConstructor;
@@ -21,5 +22,9 @@ public class DroneController {
 	@PostMapping("/register-drone")
 	public ResponseBean registerDrone(@RequestBody DroneDTO drone) {
 		return service.register(drone);
+	}
+	@PostMapping("/load-medication")
+	public ResponseBean loadMedicationItems(@RequestBody LoadMedicationItemsRequest request) {
+		return service.loadMedicationItems(request);
 	}
 }
