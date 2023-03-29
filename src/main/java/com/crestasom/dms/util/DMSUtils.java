@@ -1,6 +1,7 @@
 package com.crestasom.dms.util;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Base64;
@@ -30,5 +31,17 @@ public class DMSUtils {
 
 	private static byte[] decodeImg(String img) {
 		return Base64.getDecoder().decode(img);
+	}
+
+	public static String readImageFromFile(String imgPath) throws IOException {
+		if (ObjectUtils.isEmpty(imgPath)) {
+			return null;
+		}
+		File file = new File(imgPath);
+		try (FileInputStream fis = new FileInputStream(file);) {
+			byte[] fileData = fis.readAllBytes();
+			return Base64.getEncoder().encodeToString(fileData);
+		}
+
 	}
 }

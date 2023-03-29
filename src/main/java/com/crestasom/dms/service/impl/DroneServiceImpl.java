@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.crestasom.dms.dto.DroneDTO;
+import com.crestasom.dms.dto.MedicationDTO;
+import com.crestasom.dms.exception.DroneNotFoundException;
 import com.crestasom.dms.exception.ImageStoreException;
 import com.crestasom.dms.model.Drone;
 import com.crestasom.dms.model.Medication;
@@ -41,7 +43,7 @@ public class DroneServiceImpl implements DroneService {
 		ResponseBean resp = new ResponseBean();
 		Drone drone = droneRepo.findBySerialNumber(droneDto.getSerialNumber());
 		if (drone != null) {
-			resp.setRespCode(configUtility.getPropertyAsInt("register.drone.duplicate.serial.number.resp.code", 400));
+			resp.setRespCode(400);
 			resp.setRespDesc(String.format(configUtility.getProperty("register.drone.duplicate.serial.number.resp.code",
 					"Drone for serial number %s already exists"), droneDto.getSerialNumber()));
 
@@ -49,7 +51,7 @@ public class DroneServiceImpl implements DroneService {
 			drone = DTOUtility.convertDroneDTOToDrone(droneDto);
 			droneRepo.save(drone);
 
-			resp.setRespCode(configUtility.getPropertyAsInt("server.success.resp.code", 200));
+			resp.setRespCode(200);
 			resp.setRespDesc(
 					configUtility.getProperty("register.drone.success.resp.desc", "Drone Registration Success"));
 		}
@@ -65,55 +67,53 @@ public class DroneServiceImpl implements DroneService {
 		logger.info("Received LoadMedicationItemsRequest [{}]", request);
 		ResponseBean resp = new ResponseBean();
 		if (request.getMedicationItemList() == null || request.getMedicationItemList().size() == 0) {
-			resp.setRespCode(configUtility.getPropertyAsInt("load.medication.list.empty.resp.code", 400));
+			resp.setRespCode(400);
 			resp.setRespDesc(configUtility.getProperty("load.medication.list.empty.resp.desc",
 					"Medication list is empty in request"));
 		} else {
 			Drone drone = droneRepo.findBySerialNumber(request.getDroneSerialNumber());
+			if (drone == null) {
+				throw new DroneNotFoundException(String.format(
+						configUtility.getProperty("drone.not.found.resp.desc", "Drone with serial number %s not found"),
+						request.getDroneSerialNumber()));
+			}
 			String rootPath = configUtility.getProperty("img.store.path");
 			String imgExtension = configUtility.getProperty("img.extension", ".jpg");
-			if (drone != null) {
-				logger.debug("drone record [{}]", drone);
-				Integer respCode = validateDroneForLoading(request, drone);
-				logger.debug("validateDroneForLoading respCode [{}]", respCode);
-				if (respCode != 101) {
-					resp.setRespCode(respCode);
-					resp.setRespDesc(String.format(
-							configUtility.getProperty("load.medication.drone.loading.resp.desc." + respCode,
-									"Failed while loading medication on Drone with serial number %s"),
-							request.getDroneSerialNumber()));
-					return resp;
-				}
-				List<Medication> medicationList = request.getMedicationItemList().stream()
-						.map(medicationDto -> DTOUtility.convertMedicationDtoToMedication(medicationDto, rootPath,
-								imgExtension))
-						.toList();
-				logger.info("Converted Medication List [{}]", medicationList);
-				drone.getMedicationList().addAll(medicationList);
-				droneRepo.save(drone);
-				storeImgToFileSystem(medicationList);
-				resp.setRespCode(configUtility.getPropertyAsInt("server.success.resp.code", 200));
-				resp.setRespDesc(String.format(
-						configUtility.getProperty("load.medication.drone.success.resp.desc",
-								"Drone with serial number %s is loaded with provided medication information"),
-						request.getDroneSerialNumber()));
 
-			} else {
-				resp.setRespCode(configUtility.getPropertyAsInt("load.medication.drone.not.found.resp.code", 404));
-				resp.setRespDesc(String.format(configUtility.getProperty("load.medication.drone.not.found.resp.desc",
-						"Drone with serial number %s not found"), request.getDroneSerialNumber()));
+			logger.debug("drone record [{}]", drone);
+			Integer respCode = validateDroneForLoading(request, drone);
+			logger.debug("validateDroneForLoading respCode [{}]", respCode);
+			if (respCode != 101) {
+				resp.setRespCode(respCode);
+				resp.setRespDesc(String.format(
+						configUtility.getProperty("load.medication.drone.loading.resp.desc." + respCode,
+								"Failed while loading medication on Drone with serial number %s"),
+						request.getDroneSerialNumber()));
+				return resp;
 			}
+			List<Medication> medicationList = request.getMedicationItemList().stream().map(
+					medicationDto -> DTOUtility.convertMedicationDtoToMedication(medicationDto, rootPath, imgExtension))
+					.toList();
+			logger.info("Converted Medication List [{}]", medicationList);
+			drone.getMedicationList().addAll(medicationList);
+			droneRepo.save(drone);
+			storeImgToFileSystem(medicationList);
+			resp.setRespCode(200);
+			resp.setRespDesc(String.format(
+					configUtility.getProperty("load.medication.drone.success.resp.desc",
+							"Drone with serial number %s is loaded with provided medication information"),
+					request.getDroneSerialNumber()));
 		}
 		return resp;
 	}
 
 	private Integer validateDroneForLoading(LoadMedicationItemsRequest request, Drone drone) {
 		if (!isDroneLoadable(request, drone)) {
-			return configUtility.getPropertyAsInt("load.medication.drone.overloaded.resp.code", 401);
+			return 401;
 		} else if (isDroneLoading(drone)) {
-			return configUtility.getPropertyAsInt("load.medication.drone.loading.resp.code", 402);
+			return 402;
 		} else if (isDroneBatteryLow(drone)) {
-			return configUtility.getPropertyAsInt("load.medication.drone.battery.low.resp.code", 403);
+			return 403;
 		} else {
 			return 101;
 		}
@@ -158,8 +158,23 @@ public class DroneServiceImpl implements DroneService {
 
 	@Override
 	public CheckMedicationResponse checkLoadedMedication(String serialNumber) {
-		// TODO Auto-generated method stub
-		return null;
+
+		Drone drone = droneRepo.findBySerialNumber(serialNumber);
+		logger.debug("Drone [{}]", drone);
+		if (drone == null) {
+			throw new DroneNotFoundException(String.format(
+					configUtility.getProperty("drone.not.found.resp.desc", "Drone with serial number %s not found"),
+					serialNumber));
+		}
+		CheckMedicationResponse resp = new CheckMedicationResponse();
+		resp.setRespCode(200);
+		if (drone.getMedicationList() == null || drone.getMedicationList().size() == 0) {
+			return resp;
+		}
+		List<MedicationDTO> medList = drone.getMedicationList().stream()
+				.map(DTOUtility::convertMedicationToMedicationDto).toList();
+		resp.setMedicationList(medList);
+		return resp;
 	}
 
 	@Override
