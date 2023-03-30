@@ -18,4 +18,5 @@ public interface DroneService {
 	CheckAvailableDroneResponse checkAvailableDroneForLoading();
 
 	CheckBatteryPercentageResponse checkDroneBatteryLevel(String serialNumber);
+	void removeAllDrone();
 }

@@ -143,6 +143,11 @@ public class DroneServiceImpl implements DroneService {
 		return resp;
 	}
 
+	@Override
+	public void removeAllDrone() {
+		droneRepo.deleteAll();
+	}
+
 	private void storeImgToFileSystem(List<Medication> medicationList) {
 		for (Medication medication : medicationList) {
 			try {
