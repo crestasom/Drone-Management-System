@@ -3,7 +3,6 @@ package com.crestasom.dms.util;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
 import java.util.Date;
 
 import org.springframework.util.ObjectUtils;
@@ -32,9 +31,9 @@ public class DTOUtility {
 				.state(State.getState(dto.getState())).build();
 	}
 
-	public static Medication convertMedicationDtoToMedication(MedicationDTO dto, String rootPath, String imgExtension) {
+	public static Medication convertMedicationDtoToMedication(MedicationDTO dto, String rootPath) {
 		return Medication.builder().name(dto.getName()).weight(dto.getWeight()).code(dto.getCode())
-				.imgPath(buildImgPath(dto, rootPath, imgExtension)).imgData(dto.getImgBase64()).build();
+				.imgPath(buildImgPath(dto, rootPath)).imgData(dto.getImgBase64()).build();
 	}
 
 	public static MedicationDTO convertMedicationToMedicationDto(Medication medication) {
@@ -53,13 +52,13 @@ public class DTOUtility {
 				.weight(medication.getWeight()).imgBase64(imgDataBase64).build();
 	}
 
-	private static String buildImgPath(MedicationDTO dto, String rootPath, String imgExtension) {
+	private static String buildImgPath(MedicationDTO dto, String rootPath) {
 		if (ObjectUtils.isEmpty(dto.getImgBase64())) {
 			return null;
 		}
 
 		String fileName = dto.getName() + "_" + sdf.format(new Date());
-		return rootPath + File.separator + fileName + imgExtension;
+		return rootPath + File.separator + fileName;
 	}
 
 }

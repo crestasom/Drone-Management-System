@@ -35,10 +35,11 @@ public class RestExceptionHandler {
 		return bean;
 	}
 
-	@ExceptionHandler(NoEnumException.class)
+	@ExceptionHandler({ NoEnumException.class, DroneNotFoundException.class, DuplicateDroneException.class,
+			NoMedicationListFoundException.class })
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ResponseBody
-	ResponseBean handleNoEnumException(NoEnumException ex) {
+	ResponseBean handleNoEnumException(RuntimeException ex) {
 		logger.error("Exception occured!![{}]", ex.getMessage(), ex);
 		ResponseBean bean = new ResponseBean();
 		bean.setRespCode(HttpStatus.BAD_REQUEST.value());
@@ -46,10 +47,10 @@ public class RestExceptionHandler {
 		return bean;
 	}
 
-	@ExceptionHandler(ImageStoreException.class)
+	@ExceptionHandler({ ImageStoreException.class, ReadImageException.class })
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	@ResponseBody
-	ResponseBean handleImageStoreException(ImageStoreException ex) {
+	ResponseBean handleImageStoreException(RuntimeException ex) {
 		logger.error("Exception occured!![{}]", ex.getMessage(), ex);
 		ResponseBean bean = new ResponseBean();
 		bean.setRespCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
