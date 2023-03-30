@@ -19,7 +19,6 @@ import lombok.Generated;
 
 public class DTOUtility {
 
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 	private static final Logger logger = LoggerFactory.getLogger(DTOUtility.class);
 
 	@Generated
@@ -55,7 +54,6 @@ public class DTOUtility {
 			try {
 				return DMSUtils.readImageFromFile(imgPath);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				logger.error("Exception : [{}]", e.getMessage(), e);
 				throw new ReadImageException(
 						"Problem while retrieving image of medication, please contact administrator");
@@ -68,7 +66,7 @@ public class DTOUtility {
 		if (ObjectUtils.isEmpty(dto.getImgBase64())) {
 			return null;
 		}
-
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 		String fileName = dto.getName() + "_" + sdf.format(new Date());
 		return rootPath + File.separator + fileName;
 	}

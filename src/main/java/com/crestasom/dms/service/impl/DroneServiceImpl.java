@@ -37,10 +37,10 @@ public class DroneServiceImpl implements DroneService {
 	private DroneRepo droneRepo;
 	private ConfigUtility configUtility;
 	private static final Logger logger = LoggerFactory.getLogger(DroneServiceImpl.class);
+	private static final String SUCCESS_DESC = "Success";
 
 	@Override
 	public ResponseBean register(DroneDTO droneDto) {
-		// TODO Auto-generated method stub
 		logger.info("Received drone for registering [{}]", droneDto);
 		ResponseBean resp = new ResponseBean();
 		Drone drone = droneRepo.findBySerialNumber(droneDto.getSerialNumber());
@@ -107,7 +107,7 @@ public class DroneServiceImpl implements DroneService {
 		CheckMedicationResponse resp = new CheckMedicationResponse();
 		resp.setRespCode(200);
 		resp.setRespDesc(String.format(
-				configUtility.getProperty("check.loaded.medication.success.resp.desc", "Success"), serialNumber));
+				configUtility.getProperty("check.loaded.medication.success.resp.desc", SUCCESS_DESC), serialNumber));
 		if (drone.getMedicationList() == null || drone.getMedicationList().size() == 0) {
 			return resp;
 		}
@@ -119,12 +119,11 @@ public class DroneServiceImpl implements DroneService {
 
 	@Override
 	public CheckAvailableDroneResponse checkAvailableDroneForLoading() {
-		// TODO Auto-generated method stub
 		List<Drone> droneList = droneRepo.findByStateNotAndBatteryCapacityGreaterThan(State.LOADING,
 				configUtility.getPropertyAsInt("drone.low.battery", 25));
 		CheckAvailableDroneResponse resp = new CheckAvailableDroneResponse();
 		resp.setRespCode(200);
-		resp.setRespDesc(configUtility.getProperty("check.available.drone.success.resp.desc", "Success"));
+		resp.setRespDesc(configUtility.getProperty("check.available.drone.success.resp.desc", SUCCESS_DESC));
 		resp.setDroneList(droneList.stream().filter(d -> isDroneLoadable(null, d))
 				.map(DTOUtility::convertDroneToDroneDto).toList());
 		return resp;
@@ -132,12 +131,10 @@ public class DroneServiceImpl implements DroneService {
 
 	@Override
 	public CheckBatteryPercentageResponse checkDroneBatteryLevel(String serialNumber) {
-		// TODO Auto-generated method stub
-
 		Drone drone = getDrone(serialNumber);
 		CheckBatteryPercentageResponse resp = new CheckBatteryPercentageResponse();
 		resp.setRespCode(200);
-		resp.setRespDesc(configUtility.getProperty("check.battery.percentage.success.resp.desc", "Success"));
+		resp.setRespDesc(configUtility.getProperty("check.battery.percentage.success.resp.desc", SUCCESS_DESC));
 		resp.setDroneBatteryLevel(drone.getBatteryCapacity());
 		resp.setSerialNumber(serialNumber);
 		return resp;
@@ -185,31 +182,22 @@ public class DroneServiceImpl implements DroneService {
 	}
 
 	private boolean isDroneLoading(Drone drone) {
-		if (drone.getState().equals(State.LOADING)) {
-			return true;
-		}
-		return false;
+		return drone.getState().equals(State.LOADING);
 	}
 
 	private boolean isDroneBatteryLow(Drone drone) {
-		if (drone.getBatteryCapacity().intValue() < configUtility.getPropertyAsInt("drone.low.battery", 25)) {
-			return true;
-		}
-		return false;
+		return drone.getBatteryCapacity().intValue() < configUtility.getPropertyAsInt("drone.low.battery", 25);
+
 	}
 
 	private boolean isDroneLoadable(LoadMedicationItemsRequest request, Drone drone) {
-
 		Double maxWeight = drone.getMaxWeight();
 		Double currentWt = drone.getMedicationList().stream().map(m -> m.getWeight()).reduce(0.0, (a, b) -> a + b);
 		Double requestWt = 0.0;
 		if (request != null) {
 			requestWt = request.getMedicationItemList().stream().map(m -> m.getWeight()).reduce(0.0, (a, b) -> a + b);
 		}
-		if (currentWt + requestWt > maxWeight) {
-			return false;
-		}
-		return true;
+		return currentWt + requestWt <= maxWeight;
 	}
 
 }

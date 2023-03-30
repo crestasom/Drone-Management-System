@@ -24,9 +24,9 @@ public class DMSUtils {
 			return;
 		}
 		File file = new File(filePath);
-		FileOutputStream fos = new FileOutputStream(file);
-		fos.write(decodeImg(imgData));
-		fos.close();
+		try(FileOutputStream fos = new FileOutputStream(file)){
+			fos.write(decodeImg(imgData));
+		}
 	}
 
 	private static byte[] decodeImg(String img) {

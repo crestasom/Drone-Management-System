@@ -8,11 +8,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class BatteryLevelMonitorScheduler {
-	@Scheduled(cron = "0 * * * * ?")
-	public void cronJobSch() {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-		Date now = new Date();
-		String strDate = sdf.format(now);
-		System.out.println("Java cron job expression:: " + strDate);
-	}
+//	@Scheduled(cron = "0 * * * * ?")
+//	public void cronJobSch() {
+//		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+//		Date now = new Date();
+//		String strDate = sdf.format(now);
+//		System.out.println("Java cron job expression:: " + strDate);
+//	}
 }

@@ -27,8 +27,8 @@ public class RestExceptionHandler {
 		logger.error("Exception occured!![{}]", ex.getMessage(), ex);
 		ResponseBean bean = new ResponseBean();
 		bean.setRespCode(HttpStatus.BAD_REQUEST.value());
-		bean.setRespDesc(((ConstraintViolationException) ex).getConstraintViolations().stream()
-				.map(e -> e.getMessageTemplate()).collect(Collectors.joining(",")));
+		bean.setRespDesc(ex.getConstraintViolations().stream().map(e -> e.getMessageTemplate())
+				.collect(Collectors.joining(",")));
 		return bean;
 	}
 
