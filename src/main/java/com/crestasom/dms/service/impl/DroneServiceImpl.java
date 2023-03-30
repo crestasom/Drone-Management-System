@@ -70,12 +70,8 @@ public class DroneServiceImpl implements DroneService {
 			throw new NoMedicationListFoundException(configUtility.getProperty("load.medication.list.empty.resp.desc",
 					"Medication list is empty in request"));
 		}
-		Drone drone = droneRepo.findBySerialNumber(request.getDroneSerialNumber());
-		if (drone == null) {
-			throw new DroneNotFoundException(String.format(
-					configUtility.getProperty("drone.not.found.resp.desc", "Drone with serial number %s not found"),
-					request.getDroneSerialNumber()));
-		}
+		Drone drone = getDrone(request.getDroneSerialNumber());
+
 		String rootPath = configUtility.getProperty("img.store.path");
 
 		logger.debug("drone record [{}]", drone);
@@ -102,6 +98,72 @@ public class DroneServiceImpl implements DroneService {
 				request.getDroneSerialNumber()));
 
 		return resp;
+	}
+
+	@Override
+	public CheckMedicationResponse checkLoadedMedication(String serialNumber) {
+
+		Drone drone = getDrone(serialNumber);
+		CheckMedicationResponse resp = new CheckMedicationResponse();
+		resp.setRespCode(200);
+		resp.setRespDesc(String.format(
+				configUtility.getProperty("check.loaded.medication.success.resp.desc", "Success"), serialNumber));
+		if (drone.getMedicationList() == null || drone.getMedicationList().size() == 0) {
+			return resp;
+		}
+		List<MedicationDTO> medList = drone.getMedicationList().stream()
+				.map(DTOUtility::convertMedicationToMedicationDto).toList();
+		resp.setMedicationList(medList);
+		return resp;
+	}
+
+	@Override
+	public CheckAvailableDroneResponse checkAvailableDroneForLoading() {
+		// TODO Auto-generated method stub
+		List<Drone> droneList = droneRepo.findByStateNotAndBatteryCapacityGreaterThan(State.LOADING,
+				configUtility.getPropertyAsInt("drone.low.battery", 25));
+		CheckAvailableDroneResponse resp = new CheckAvailableDroneResponse();
+		resp.setRespCode(200);
+		resp.setRespDesc(configUtility.getProperty("check.available.drone.success.resp.desc", "Success"));
+		resp.setDroneList(droneList.stream().filter(d -> isDroneLoadable(null, d))
+				.map(DTOUtility::convertDroneToDroneDto).toList());
+		return resp;
+	}
+
+	@Override
+	public CheckBatteryPercentageResponse checkDroneBatteryLevel(String serialNumber) {
+		// TODO Auto-generated method stub
+
+		Drone drone = getDrone(serialNumber);
+		CheckBatteryPercentageResponse resp = new CheckBatteryPercentageResponse();
+		resp.setRespCode(200);
+		resp.setRespDesc(configUtility.getProperty("check.battery.percentage.success.resp.desc", "Success"));
+		resp.setDroneBatteryLevel(drone.getBatteryCapacity());
+		resp.setSerialNumber(serialNumber);
+		return resp;
+	}
+
+	private void storeImgToFileSystem(List<Medication> medicationList) {
+		for (Medication medication : medicationList) {
+			try {
+				DMSUtils.storeImgToFile(medication.getImgPath(), medication.getImgData());
+			} catch (IOException e) {
+				logger.error("Exception : [{}]", e.getMessage(), e);
+				throw new ImageStoreException(configUtility.getProperty("image.store.exception",
+						"Problem in storing image. Please contact Administrator"));
+			}
+		}
+	}
+
+	private Drone getDrone(String serialNumber) {
+		Drone drone = droneRepo.findBySerialNumber(serialNumber);
+		logger.debug("Drone [{}]", drone);
+		if (drone == null) {
+			throw new DroneNotFoundException(String.format(
+					configUtility.getProperty("drone.not.found.resp.desc", "Drone with serial number %s not found"),
+					serialNumber));
+		}
+		return drone;
 	}
 
 	private Integer validateDroneForLoading(LoadMedicationItemsRequest request, Drone drone) {
@@ -135,57 +197,14 @@ public class DroneServiceImpl implements DroneService {
 
 		Double maxWeight = drone.getMaxWeight();
 		Double currentWt = drone.getMedicationList().stream().map(m -> m.getWeight()).reduce(0.0, (a, b) -> a + b);
-		Double requestWt = request.getMedicationItemList().stream().map(m -> m.getWeight()).reduce(0.0,
-				(a, b) -> a + b);
+		Double requestWt = 0.0;
+		if (request != null) {
+			requestWt = request.getMedicationItemList().stream().map(m -> m.getWeight()).reduce(0.0, (a, b) -> a + b);
+		}
 		if (currentWt + requestWt > maxWeight) {
 			return false;
 		}
 		return true;
-	}
-
-	private void storeImgToFileSystem(List<Medication> medicationList) {
-		for (Medication medication : medicationList) {
-			try {
-				DMSUtils.storeImgToFile(medication.getImgPath(), medication.getImgData());
-			} catch (IOException e) {
-				throw new ImageStoreException(e.getMessage());
-			}
-		}
-	}
-
-	@Override
-	public CheckMedicationResponse checkLoadedMedication(String serialNumber) {
-
-		Drone drone = droneRepo.findBySerialNumber(serialNumber);
-		logger.debug("Drone [{}]", drone);
-		if (drone == null) {
-			throw new DroneNotFoundException(String.format(
-					configUtility.getProperty("drone.not.found.resp.desc", "Drone with serial number %s not found"),
-					serialNumber));
-		}
-		CheckMedicationResponse resp = new CheckMedicationResponse();
-		resp.setRespCode(200);
-		resp.setRespDesc(String.format(
-				configUtility.getProperty("check.loaded.medication.success.resp.desc", "Success"), serialNumber));
-		if (drone.getMedicationList() == null || drone.getMedicationList().size() == 0) {
-			return resp;
-		}
-		List<MedicationDTO> medList = drone.getMedicationList().stream()
-				.map(DTOUtility::convertMedicationToMedicationDto).toList();
-		resp.setMedicationList(medList);
-		return resp;
-	}
-
-	@Override
-	public CheckAvailableDroneResponse checkAvailableDroneForLoading() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public CheckBatteryPercentageResponse checkDroneBatteryLevel(String serialNumber) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.crestasom.dms.model.ResponseBean;
-import com.crestasom.dms.util.ConfigUtility;
-
 import jakarta.validation.ConstraintViolationException;
 import lombok.AllArgsConstructor;
 
@@ -21,7 +19,6 @@ import lombok.AllArgsConstructor;
 public class RestExceptionHandler {
 
 	private static Logger logger = LoggerFactory.getLogger(RestExceptionHandler.class);
-	private ConfigUtility configUtility;
 
 	@ExceptionHandler(ConstraintViolationException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -51,11 +48,9 @@ public class RestExceptionHandler {
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	@ResponseBody
 	ResponseBean handleImageStoreException(RuntimeException ex) {
-		logger.error("Exception occured!![{}]", ex.getMessage(), ex);
 		ResponseBean bean = new ResponseBean();
 		bean.setRespCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
-		bean.setRespDesc(configUtility.getProperty("image.store.exception",
-				"Problem in storing image. Please contact Administrator"));
+		bean.setRespDesc(ex.getMessage());
 		return bean;
 	}
 }
