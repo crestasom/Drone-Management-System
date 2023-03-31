@@ -444,15 +444,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#resources">Resources</a>
 <ul class="sectlevel1">
-<li><a href="#resources-index">Index</a>
-<ul class="sectlevel2">
-<li><a href="#resources-index-access">Accessing the index</a>
-<ul class="sectlevel3">
-<li><a href="#resources-index-links">Links</a></li>
-</ul>
-</li>
-</ul>
-</li>
 <li><a href="#resources-CRUD">Drone Management System</a>
 <ul class="sectlevel2">
 <li><a href="#_registering_drone_post">Registering Drone POST</a>
@@ -547,14 +538,6 @@ use of HTTP verbs.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>POST</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Used to create a new resource</p></td>
 </tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>PATCH</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Used to update an existing resource, including partial updates</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DELETE</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Used to delete an existing resource</p></td>
-</tr>
 </tbody>
 </table>
 <div class="paragraph">
@@ -576,15 +559,6 @@ use of HTTP status codes.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>200 OK</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The request completed successfully</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>201 Created</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A new resource has been created successfully. The resource&#8217;s URI is available from the response&#8217;s
-<code>Location</code> header</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>204 No Content</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">An update to an existing resource has been applied successfully</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>400 Bad Request</code></p></td>
@@ -611,23 +585,6 @@ not create URIs themselves, instead they should use the above-described links to
 </div>
 </div>
 <h1 id="resources" class="sect0"><a class="link" href="#resources">Resources</a></h1>
-<div class="sect1">
-<h2 id="resources-index"><a class="link" href="#resources-index">Index</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The index provides the entry point into the service.</p>
-</div>
-<div class="sect2">
-<h3 id="resources-index-access"><a class="link" href="#resources-index-access">Accessing the index</a></h3>
-<div class="sect3">
-<h4 id="resources-index-links"><a class="link" href="#resources-index-links">Links</a></h4>
-<div class="paragraph">
-<p>Unresolved directive in api-guide.adoc - include::C:\Users\som\eclipse-workspace\drone-management-system\target/generated-snippets/register-drone/links.adoc[]</p>
-</div>
-</div>
-</div>
-</div>
-</div>
 <div class="sect1">
 <h2 id="resources-CRUD"><a class="link" href="#resources-CRUD">Drone Management System</a></h2>
 <div class="sectionbody">
@@ -972,7 +929,7 @@ Content-Length: 1544
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-03-31 08:57:23 NPT
+Last updated 2023-03-31 15:15:54 NPT
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
