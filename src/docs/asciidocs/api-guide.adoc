@@ -25,12 +25,6 @@ use of HTTP verbs.
 | `POST`
 | Used to create a new resource
 
-| `PATCH`
-| Used to update an existing resource, including partial updates
-
-| `DELETE`
-| Used to delete an existing resource
-|===
 
 RESTful notes tries to adhere as closely as possible to standard HTTP and REST conventions in its
 use of HTTP status codes.
@@ -40,13 +34,6 @@ use of HTTP status codes.
 
 | `200 OK`
 | The request completed successfully
-
-| `201 Created`
-| A new resource has been created successfully. The resource's URI is available from the response's
-`Location` header
-
-| `204 No Content`
-| An update to an existing resource has been applied successfully
 
 | `400 Bad Request`
 | The request was malformed. The response body will include an error providing further information
@@ -66,23 +53,6 @@ not create URIs themselves, instead they should use the above-described links to
 
 [[resources]]
 = Resources
-
-
-
-[[resources-index]]
-== Index
-
-The index provides the entry point into the service.
-
-[[resources-index-access]]
-=== Accessing the index
-
-
-
-[[resources-index-links]]
-==== Links
-
-include::{snippets}/register-drone/links.adoc[]
 
 
 [[resources-CRUD]]
