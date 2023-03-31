@@ -23,5 +23,5 @@
 <li>Run maven build(mvn clean install)</li>
 <li>Run jar file under target folder (java -jar pps-0.0.1-SNAPSHOT.jar) </li>
 </ul>
-<b> API Guide will be found under 'target/generated-docs' folder after building project</b>
+<b>API guide can be found under root directory.</b>
 
