@@ -2,6 +2,7 @@ package com.crestasom.dms;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +20,18 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.RestDocumentationContextProvider;
+import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 
@@ -44,9 +52,10 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 @RunWith(SpringRunner.class)
+@ExtendWith({ RestDocumentationExtension.class, SpringExtension.class })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = DmsApplication.class)
 @AutoConfigureMockMvc
-@AutoConfigureRestDocs(outputDir = "src/docs")
+//@AutoConfigureRestDocs(outputDir = "target/snippets")
 @TestPropertySource(locations = "classpath:application-test.properties")
 class DroneControllerIntegrationTest {
 
@@ -65,6 +74,15 @@ class DroneControllerIntegrationTest {
 	@BeforeEach
 	public void setUp() {
 		service.removeAllDrone();
+	}
+
+	@BeforeEach
+	public void setUp(WebApplicationContext webApplicationContext, RestDocumentationContextProvider restDocumentation) {
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+				.apply(documentationConfiguration(restDocumentation))
+				.alwaysDo(
+						document("{method-name}", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())))
+				.build();
 	}
 
 	@Test
@@ -264,7 +282,7 @@ class DroneControllerIntegrationTest {
 
 	}
 
-	private LoadMedicationItemsRequest createMockRecord() {
+	LoadMedicationItemsRequest createMockRecord() {
 		LoadMedicationItemsRequest req = new LoadMedicationItemsRequest();
 		req.setDroneSerialNumber("12345");
 		List<MedicationDTO> medList = new ArrayList<>();
