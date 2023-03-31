@@ -12,6 +12,7 @@ import com.crestasom.dms.dto.DroneDTO;
 import com.crestasom.dms.dto.MedicationDTO;
 import com.crestasom.dms.exception.ReadImageException;
 import com.crestasom.dms.model.Drone;
+import com.crestasom.dms.model.DroneAuditLog;
 import com.crestasom.dms.model.Medication;
 import com.crestasom.dms.model.enums.Model;
 import com.crestasom.dms.model.enums.State;
@@ -47,6 +48,18 @@ public class DTOUtility {
 
 		return MedicationDTO.builder().name(medication.getName()).code(medication.getCode())
 				.weight(medication.getWeight()).imgBase64(getImage(medication.getImgPath())).build();
+	}
+
+	public static DroneAuditLog convertDroneToDroneAuditLog(Drone drone) {
+		return DroneAuditLog.builder().batteryLevel(drone.getBatteryCapacity()).serialNumber(drone.getSerialNumber())
+				.createdDateTime(new Date()).currentLoadWt(getCurrentDroneWt(drone)).state(drone.getState()).build();
+	}
+
+	private static Double getCurrentDroneWt(Drone drone) {
+		if(drone.getMedicationList()==null) {
+			return 0.0;
+		}
+		return drone.getMedicationList().stream().map(d -> d.getWeight()).reduce(0.0, (a, b) -> a + b);
 	}
 
 	private static String getImage(String imgPath) {

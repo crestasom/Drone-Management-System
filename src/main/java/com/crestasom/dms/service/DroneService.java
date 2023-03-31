@@ -1,6 +1,9 @@
 package com.crestasom.dms.service;
 
+import java.util.List;
+
 import com.crestasom.dms.dto.DroneDTO;
+import com.crestasom.dms.model.Drone;
 import com.crestasom.dms.model.ResponseBean;
 import com.crestasom.dms.model.request.LoadMedicationItemsRequest;
 import com.crestasom.dms.model.response.CheckAvailableDroneResponse;
@@ -18,5 +21,8 @@ public interface DroneService {
 	CheckAvailableDroneResponse checkAvailableDroneForLoading();
 
 	CheckBatteryPercentageResponse checkDroneBatteryLevel(String serialNumber);
+	
 	void removeAllDrone();
+	
+	List<Drone> findAllDrone();
 }

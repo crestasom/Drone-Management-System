@@ -108,7 +108,7 @@ public class DroneServiceImpl implements DroneService {
 		resp.setRespCode(200);
 		resp.setRespDesc(String.format(
 				configUtility.getProperty("check.loaded.medication.success.resp.desc", SUCCESS_DESC), serialNumber));
-		if (drone.getMedicationList() == null || drone.getMedicationList().size() == 0) {
+		if (drone.getMedicationList() == null) {
 			return resp;
 		}
 		List<MedicationDTO> medList = drone.getMedicationList().stream()
@@ -199,5 +199,11 @@ public class DroneServiceImpl implements DroneService {
 		}
 		return currentWt + requestWt <= maxWeight;
 	}
+
+	@Override
+	public List<Drone> findAllDrone() {
+		return droneRepo.findAll();
+	}
+	
 
 }

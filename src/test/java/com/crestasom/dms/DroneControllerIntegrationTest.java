@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +37,6 @@ import com.crestasom.dms.model.response.CheckAvailableDroneResponse;
 import com.crestasom.dms.model.response.CheckBatteryPercentageResponse;
 import com.crestasom.dms.model.response.CheckMedicationResponse;
 import com.crestasom.dms.service.DroneService;
-import com.crestasom.dms.service.impl.DroneServiceImpl;
 import com.crestasom.dms.util.DMSUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,7 +47,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = DmsApplication.class)
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs(outputDir = "src/docs")
-//@TestPropertySource(locations = "classpath:application-test.properties")
+@TestPropertySource(locations = "classpath:application-test.properties")
 class DroneControllerIntegrationTest {
 
 	@Autowired
@@ -92,12 +90,9 @@ class DroneControllerIntegrationTest {
 				.serialNumber("12345").state(State.IDLE.toString()).build();
 		ObjectMapper mapper = new ObjectMapper();
 		String requestJson = objtoJson(dto);
-		MvcResult result = mockMvc
-				.perform(MockMvcRequestBuilders.post(REGISTER_DRONE_URI).contentType(MediaType.APPLICATION_JSON)
-						.content(requestJson))
-				.andExpect(MockMvcResultMatchers.status().is4xxClientError()).andDo(document(REGISTER_DRONE_URI,
-						preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())))
-				.andReturn();
+		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(REGISTER_DRONE_URI)
+				.contentType(MediaType.APPLICATION_JSON).content(requestJson))
+				.andExpect(MockMvcResultMatchers.status().is4xxClientError()).andReturn();
 		ResponseBean resp = mapper.readValue(result.getResponse().getContentAsString(), ResponseBean.class);
 		assertEquals(400, resp.getRespCode().intValue());
 
@@ -129,7 +124,8 @@ class DroneControllerIntegrationTest {
 				.perform(MockMvcRequestBuilders.post(LOAD_MEDICATION).contentType(MediaType.APPLICATION_JSON)
 						.content(requestJson))
 				.andExpect(MockMvcResultMatchers.status().is4xxClientError())
-				.andDo(document(LOAD_MEDICATION, preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())))
+				.andDo(document(LOAD_MEDICATION + "-no-drone-found", preprocessRequest(prettyPrint()),
+						preprocessResponse(prettyPrint())))
 				.andReturn();
 		ResponseBean resp = mapper.readValue(result.getResponse().getContentAsString(), ResponseBean.class);
 		assertEquals(400, resp.getRespCode().intValue());
@@ -147,12 +143,14 @@ class DroneControllerIntegrationTest {
 				.perform(MockMvcRequestBuilders.post(LOAD_MEDICATION).contentType(MediaType.APPLICATION_JSON)
 						.content(requestJson))
 				.andExpect(MockMvcResultMatchers.status().is4xxClientError())
-				.andDo(document(LOAD_MEDICATION, preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())))
+				.andDo(document(LOAD_MEDICATION + "-no-medication-list", preprocessRequest(prettyPrint()),
+						preprocessResponse(prettyPrint())))
 				.andReturn();
 		ResponseBean resp = mapper.readValue(result.getResponse().getContentAsString(), ResponseBean.class);
 		assertEquals(400, resp.getRespCode().intValue());
 
 	}
+
 	@Test
 	void testLoadMedicationNoMedicationListFound() throws Exception {
 		insertMockRecord();
@@ -160,12 +158,9 @@ class DroneControllerIntegrationTest {
 		req.setMedicationItemList(new ArrayList<>());
 		ObjectMapper mapper = new ObjectMapper();
 		String requestJson = objtoJson(req);
-		MvcResult result = mockMvc
-				.perform(MockMvcRequestBuilders.post(LOAD_MEDICATION).contentType(MediaType.APPLICATION_JSON)
-						.content(requestJson))
-				.andExpect(MockMvcResultMatchers.status().is4xxClientError())
-				.andDo(document(LOAD_MEDICATION, preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())))
-				.andReturn();
+		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(LOAD_MEDICATION)
+				.contentType(MediaType.APPLICATION_JSON).content(requestJson))
+				.andExpect(MockMvcResultMatchers.status().is4xxClientError()).andReturn();
 		ResponseBean resp = mapper.readValue(result.getResponse().getContentAsString(), ResponseBean.class);
 		assertEquals(400, resp.getRespCode().intValue());
 
@@ -182,12 +177,9 @@ class DroneControllerIntegrationTest {
 		req.setMedicationItemList(medList);
 		ObjectMapper mapper = new ObjectMapper();
 		String requestJson = objtoJson(req);
-		MvcResult result = mockMvc
-				.perform(MockMvcRequestBuilders.post(LOAD_MEDICATION).contentType(MediaType.APPLICATION_JSON)
-						.content(requestJson))
-				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andDo(document(LOAD_MEDICATION, preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())))
-				.andReturn();
+		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(LOAD_MEDICATION)
+				.contentType(MediaType.APPLICATION_JSON).content(requestJson))
+				.andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 		ResponseBean resp = mapper.readValue(result.getResponse().getContentAsString(), ResponseBean.class);
 		assertEquals(401, resp.getRespCode().intValue());
 
@@ -200,12 +192,9 @@ class DroneControllerIntegrationTest {
 		req.setDroneSerialNumber("123456");
 		ObjectMapper mapper = new ObjectMapper();
 		String requestJson = objtoJson(req);
-		MvcResult result = mockMvc
-				.perform(MockMvcRequestBuilders.post(LOAD_MEDICATION).contentType(MediaType.APPLICATION_JSON)
-						.content(requestJson))
-				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andDo(document(LOAD_MEDICATION, preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())))
-				.andReturn();
+		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(LOAD_MEDICATION)
+				.contentType(MediaType.APPLICATION_JSON).content(requestJson))
+				.andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 		ResponseBean resp = mapper.readValue(result.getResponse().getContentAsString(), ResponseBean.class);
 		assertEquals(402, resp.getRespCode().intValue());
 
@@ -218,12 +207,9 @@ class DroneControllerIntegrationTest {
 
 		ObjectMapper mapper = new ObjectMapper();
 		String requestJson = objtoJson(req);
-		MvcResult result = mockMvc
-				.perform(MockMvcRequestBuilders.post(LOAD_MEDICATION).contentType(MediaType.APPLICATION_JSON)
-						.content(requestJson))
-				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andDo(document(LOAD_MEDICATION, preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())))
-				.andReturn();
+		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(LOAD_MEDICATION)
+				.contentType(MediaType.APPLICATION_JSON).content(requestJson))
+				.andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 		ResponseBean resp = mapper.readValue(result.getResponse().getContentAsString(), ResponseBean.class);
 		assertEquals(403, resp.getRespCode().intValue());
 
