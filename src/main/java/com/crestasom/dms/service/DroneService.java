@@ -3,6 +3,7 @@ package com.crestasom.dms.service;
 import java.util.List;
 
 import com.crestasom.dms.dto.DroneDTO;
+import com.crestasom.dms.dto.MedicationDTO;
 import com.crestasom.dms.model.Drone;
 import com.crestasom.dms.model.ResponseBean;
 import com.crestasom.dms.model.request.LoadMedicationItemsRequest;
@@ -14,8 +15,6 @@ public interface DroneService {
 
 	ResponseBean register(DroneDTO droneDto);
 
-	ResponseBean loadMedicationItems(LoadMedicationItemsRequest request);
-
 	CheckMedicationResponse checkLoadedMedication(String serialNumber);
 
 	CheckAvailableDroneResponse checkAvailableDroneForLoading();
@@ -25,4 +24,6 @@ public interface DroneService {
 	void removeAllDrone();
 	
 	List<Drone> findAllDrone();
+
+	ResponseBean loadMedicationItems(List<MedicationDTO> medicationList, String droneSerialNumber);
 }

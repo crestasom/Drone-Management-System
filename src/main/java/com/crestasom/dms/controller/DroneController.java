@@ -1,6 +1,9 @@
 package com.crestasom.dms.controller;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.crestasom.dms.dto.DroneDTO;
+import com.crestasom.dms.dto.MedicationDTO;
 import com.crestasom.dms.model.ResponseBean;
-import com.crestasom.dms.model.request.LoadMedicationItemsRequest;
 import com.crestasom.dms.model.response.CheckAvailableDroneResponse;
 import com.crestasom.dms.model.response.CheckBatteryPercentageResponse;
 import com.crestasom.dms.model.response.CheckMedicationResponse;
@@ -29,9 +32,10 @@ public class DroneController {
 		return service.register(drone);
 	}
 
-	@PostMapping("/load-medication")
-	public ResponseBean loadMedicationItems(@RequestBody LoadMedicationItemsRequest request) {
-		return service.loadMedicationItems(request);
+	@PostMapping("/load-medication/{drone-serial-number}")
+	public ResponseBean loadMedicationItems(@RequestBody List<MedicationDTO> medicationList,
+			@PathVariable("drone-serial-number") String droneSerialNumber) {
+		return service.loadMedicationItems(medicationList,droneSerialNumber);
 	}
 
 	@GetMapping("/check-loaded-medication")

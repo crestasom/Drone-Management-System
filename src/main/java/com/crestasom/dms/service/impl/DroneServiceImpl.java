@@ -17,7 +17,6 @@ import com.crestasom.dms.model.Drone;
 import com.crestasom.dms.model.Medication;
 import com.crestasom.dms.model.ResponseBean;
 import com.crestasom.dms.model.enums.State;
-import com.crestasom.dms.model.request.LoadMedicationItemsRequest;
 import com.crestasom.dms.model.response.CheckAvailableDroneResponse;
 import com.crestasom.dms.model.response.CheckBatteryPercentageResponse;
 import com.crestasom.dms.model.response.CheckMedicationResponse;
@@ -63,39 +62,40 @@ public class DroneServiceImpl implements DroneService {
 
 	@Override
 	@Transactional
-	public ResponseBean loadMedicationItems(LoadMedicationItemsRequest request) {
-		logger.info("Received LoadMedicationItemsRequest [{}]", request);
+	public ResponseBean loadMedicationItems(List<MedicationDTO> medicationList, String droneSerialNumber) {
+		logger.info("Received LoadMedicationItemsRequest [{}]", medicationList);
 		ResponseBean resp = new ResponseBean();
-		if (request.getMedicationItemList() == null || request.getMedicationItemList().size() == 0) {
+		if (medicationList == null || medicationList.size() == 0) {
 			throw new NoMedicationListFoundException(configUtility.getProperty("load.medication.list.empty.resp.desc",
 					"Medication list is empty in request"));
 		}
-		Drone drone = getDrone(request.getDroneSerialNumber());
+		Drone drone = getDrone(droneSerialNumber);
 
 		String rootPath = configUtility.getProperty("img.store.path");
 
 		logger.debug("drone record [{}]", drone);
-		Integer respCode = validateDroneForLoading(request, drone);
+		Integer respCode = validateDroneForLoading(medicationList, drone);
 		logger.debug("validateDroneForLoading respCode [{}]", respCode);
 		if (respCode != 101) {
 			resp.setRespCode(respCode);
-			resp.setRespDesc(String.format(
-					configUtility.getProperty("load.medication.drone.loading.resp.desc." + respCode,
-							"Failed while loading medication on Drone with serial number %s"),
-					request.getDroneSerialNumber()));
+			resp.setRespDesc(
+					String.format(
+							configUtility.getProperty("load.medication.drone.loading.resp.desc." + respCode,
+									"Failed while loading medication on Drone with serial number %s"),
+							droneSerialNumber));
 			return resp;
 		}
-		List<Medication> medicationList = request.getMedicationItemList().stream()
+		List<Medication> medList = medicationList.stream()
 				.map(medicationDto -> DTOUtility.convertMedicationDtoToMedication(medicationDto, rootPath)).toList();
 		logger.info("Converted Medication List [{}]", medicationList);
-		drone.getMedicationList().addAll(medicationList);
+		drone.getMedicationList().addAll(medList);
 		droneRepo.save(drone);
-		storeImgToFileSystem(medicationList);
+		storeImgToFileSystem(medList);
 		resp.setRespCode(200);
 		resp.setRespDesc(String.format(
 				configUtility.getProperty("load.medication.drone.success.resp.desc",
 						"Drone with serial number %s is loaded with provided medication information"),
-				request.getDroneSerialNumber()));
+				droneSerialNumber));
 
 		return resp;
 	}
@@ -168,7 +168,7 @@ public class DroneServiceImpl implements DroneService {
 		return drone;
 	}
 
-	private Integer validateDroneForLoading(LoadMedicationItemsRequest request, Drone drone) {
+	private Integer validateDroneForLoading(List<MedicationDTO> request, Drone drone) {
 		if (!isDroneLoadable(request, drone)) {
 			return 401;
 		} else if (isDroneLoading(drone)) {
@@ -190,12 +190,12 @@ public class DroneServiceImpl implements DroneService {
 
 	}
 
-	private boolean isDroneLoadable(LoadMedicationItemsRequest request, Drone drone) {
+	private boolean isDroneLoadable(List<MedicationDTO> medicationList, Drone drone) {
 		Double maxWeight = drone.getMaxWeight();
 		Double currentWt = drone.getMedicationList().stream().map(m -> m.getWeight()).reduce(0.0, (a, b) -> a + b);
 		Double requestWt = 0.0;
-		if (request != null) {
-			requestWt = request.getMedicationItemList().stream().map(m -> m.getWeight()).reduce(0.0, (a, b) -> a + b);
+		if (medicationList != null) {
+			requestWt = medicationList.stream().map(m -> m.getWeight()).reduce(0.0, (a, b) -> a + b);
 		}
 		return currentWt + requestWt <= maxWeight;
 	}
@@ -204,6 +204,5 @@ public class DroneServiceImpl implements DroneService {
 	public List<Drone> findAllDrone() {
 		return droneRepo.findAll();
 	}
-	
 
 }
