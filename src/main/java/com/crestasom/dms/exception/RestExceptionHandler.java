@@ -32,8 +32,19 @@ public class RestExceptionHandler {
 		return bean;
 	}
 
+//	@ExceptionHandler(InvalidBeanException.class)
+//	@ResponseStatus(HttpStatus.BAD_REQUEST)
+//	@ResponseBody
+//	ResponseBean handleInvalidBeanException(InvalidBeanException ex) {
+//		logger.error("Exception occured!![{}]", ex.getMessage(), ex);
+//		ResponseBean bean = new ResponseBean();
+//		bean.setRespCode(HttpStatus.BAD_REQUEST.value());
+//		bean.setRespDesc(ex.getErrorList().stream().map(e -> e.getDefaultMessage()).collect(Collectors.joining(",")));
+//		return bean;
+//	}
+
 	@ExceptionHandler({ NoEnumException.class, DroneNotFoundException.class, DuplicateDroneException.class,
-			NoMedicationListFoundException.class })
+			NoMedicationListFoundException.class, InvalidBeanException.class })
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ResponseBody
 	ResponseBean handleNoEnumException(RuntimeException ex) {

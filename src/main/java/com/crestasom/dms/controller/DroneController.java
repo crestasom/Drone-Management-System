@@ -22,7 +22,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class DroneController {
 
-	private DroneService service;
+	private final DroneService service;
 
 	@PostMapping("/register-drone")
 	public ResponseBean registerDrone(@RequestBody DroneDTO drone) {
