@@ -1,4 +1,4 @@
-package com.crestasom.dms.model.request;
+package com.crestasom.dms.bean;
 
 import java.util.List;
 

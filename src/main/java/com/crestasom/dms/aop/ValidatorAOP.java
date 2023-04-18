@@ -8,6 +8,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.ObjectUtils;
 
 import com.crestasom.dms.dto.BaseDTO;
 import com.crestasom.dms.exception.InvalidBeanException;
@@ -29,20 +30,26 @@ public class ValidatorAOP {
 	 */
 	@Around("within(com.crestasom.dms.*.controller..* ||com.crestasom.dms.controller.* )")
 	public Object validateBean(ProceedingJoinPoint pjp) throws Throwable {
-		Object obj = pjp.getArgs()[0];
-		if (obj instanceof List) {
-			List<?> objList = (List<?>) obj;
-			if (objList != null && objList.size() > 0 && objList.get(0) instanceof BaseDTO) {
-				objList.stream().forEach(o -> checkValidBean(o));
-			}
-
-		} else {
-			if (obj instanceof BaseDTO) {
+		Object[] objArr = pjp.getArgs();
+		if (!ObjectUtils.isEmpty(objArr)) {
+			Object obj = objArr[0];
+			if (isBaseDTOList(obj)) {
+				((List<?>) obj).stream().forEach(this::checkValidBean);
+			} else if (obj instanceof BaseDTO) {
 				checkValidBean(obj);
 			}
 		}
-		Object output = pjp.proceed();
-		return output;
+		return pjp.proceed();
+	}
+
+	private boolean isBaseDTOList(Object obj) {
+		if (obj instanceof List) {
+			List<?> objList = (List<?>) obj;
+			if (!ObjectUtils.isEmpty(objList) && objList.get(0) instanceof BaseDTO) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void checkValidBean(Object obj) {

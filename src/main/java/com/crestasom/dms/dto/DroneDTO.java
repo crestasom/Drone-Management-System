@@ -9,15 +9,14 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@EqualsAndHashCode(callSuper = false)
-public class DroneDTO extends BaseDTO {
+
+public class DroneDTO implements BaseDTO {
 	@Size(max = 100, message = "Max length for Serial Number is 100")
 	private String serialNumber;
 	@ValidModel

@@ -65,7 +65,7 @@ public class DroneServiceImpl implements DroneService {
 	public ResponseBean loadMedicationItems(List<MedicationDTO> medicationList, String droneSerialNumber) {
 		logger.info("Received LoadMedicationItemsRequest [{}]", medicationList);
 		ResponseBean resp = new ResponseBean();
-		if (medicationList == null || medicationList.size() == 0) {
+		if (medicationList == null || medicationList.isEmpty()) {
 			throw new NoMedicationListFoundException(configUtility.getProperty("load.medication.list.empty.resp.desc",
 					"Medication list is empty in request"));
 		}
