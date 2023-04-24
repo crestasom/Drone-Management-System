@@ -31,7 +31,8 @@ public class JwtSecurityConfig {
 
 	@Bean
 	public SecurityFilterChain configure(final HttpSecurity http) throws Exception {
-		return http.cors().and().csrf().disable().authorizeHttpRequests().requestMatchers("/auth").permitAll()
+		return http.cors().and().csrf().disable().authorizeHttpRequests()
+				.requestMatchers("/auth", "/check-available-drones", "/check-drone-battery-level").permitAll()
 				.anyRequest().authenticated().and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 				.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class).build();
