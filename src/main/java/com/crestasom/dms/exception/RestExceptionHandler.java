@@ -3,6 +3,7 @@ package com.crestasom.dms.exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -21,10 +22,21 @@ public class RestExceptionHandler {
 			NoMedicationListFoundException.class, InvalidBeanException.class })
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ResponseBody
-	ResponseBean handleNoEnumException(RuntimeException ex) {
+	ResponseBean handleBadRequestException(RuntimeException ex) {
 		logger.error("Exception occured!![{}]", ex.getMessage(), ex);
 		ResponseBean bean = new ResponseBean();
 		bean.setRespCode(HttpStatus.BAD_REQUEST.value());
+		bean.setRespDesc(ex.getMessage());
+		return bean;
+	}
+
+	@ExceptionHandler({ InvalidCredentialException.class })
+	@ResponseStatus(HttpStatus.FORBIDDEN)
+	@ResponseBody
+	ResponseBean handleInvalidCredentialException(RuntimeException ex) {
+		logger.error("Exception occured!![{}]", ex.getMessage(), ex);
+		ResponseBean bean = new ResponseBean();
+		bean.setRespCode(HttpStatus.FORBIDDEN.value());
 		bean.setRespDesc(ex.getMessage());
 		return bean;
 	}
@@ -33,6 +45,7 @@ public class RestExceptionHandler {
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	@ResponseBody
 	ResponseBean handleImageStoreException(RuntimeException ex) {
+		logger.error("Exception occured!![{}]", ex.getMessage(), ex);
 		ResponseBean bean = new ResponseBean();
 		bean.setRespCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
 		bean.setRespDesc(ex.getMessage());
