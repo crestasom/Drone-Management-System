@@ -8,12 +8,13 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.crestasom.dms.model.Drone;
 import com.crestasom.dms.model.DroneAuditLog;
@@ -22,14 +23,15 @@ import com.crestasom.dms.repo.DroneAuditLogRepo;
 import com.crestasom.dms.scheduler.BatteryLevelMonitorScheduler;
 import com.crestasom.dms.service.DroneService;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = BatteryLevelMonitorScheduler.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class BatteryLevelMonitorSchedulerUnitTest {
-	@InjectMocks
+	@Autowired
 	BatteryLevelMonitorScheduler scheduler;
-	@Mock
+	@MockBean
 	private DroneService service;
-	@Mock
+	@MockBean
 	private DroneAuditLogRepo repo;
 
 	@BeforeEach
@@ -55,4 +57,9 @@ class BatteryLevelMonitorSchedulerUnitTest {
 		scheduler.logBatteryInformation();
 		assertEquals(3, repo.findAll().size());
 	}
+	
+//	@Test
+//	void testLogBatteryInformation() {
+//		RuntimeException ex=assertThrows(RuntimeException.class, () -> scheduler.logBatteryInformation());
+//	}
 }
